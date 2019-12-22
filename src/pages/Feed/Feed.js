@@ -50,7 +50,7 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch('URL')
+    fetch('http://localhost:8080/feed/posts')
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
@@ -106,12 +106,21 @@ class Feed extends Component {
       editLoading: true
     });
     // Set up data (with image!)
-    let url = 'URL';
+    let url = 'http://localhost:8080/feed/post';
+    let method = 'POST'
     if (this.state.editPost) {
       url = 'URL';
     }
 
-    fetch(url)
+    let fetchHaders = new Headers();
+    fetchHaders.append("Content-Type", "application/json");
+    let requestOptions = {
+      method,
+      headers: fetchHaders,
+      body: JSON.stringify(postData),
+      redirect: 'follow'
+    };
+    fetch(url, requestOptions)
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Creating or editing a post failed!');
