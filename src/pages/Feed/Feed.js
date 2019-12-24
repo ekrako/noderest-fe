@@ -59,7 +59,12 @@ class Feed extends Component {
       })
       .then(resData => {
         this.setState({
-          posts: resData.posts,
+          posts: resData.posts.map(post => {
+            return {
+              ...post,
+              imagePath: post.imageUrl
+            }
+          }),
           totalPosts: resData.totalItems,
           postsLoading: false
         });
@@ -109,15 +114,16 @@ class Feed extends Component {
     let url = 'http://localhost:8080/feed/post';
     let method = 'POST'
     if (this.state.editPost) {
-      url = 'URL';
+      url = 'http://localhost:8080/feed/post/' + this.state.editPost._id;
+      method = 'PUT'
     }
-
-    let fetchHaders = new Headers();
-    fetchHaders.append("Content-Type", "application/json");
+    const formData = new FormData();
+    formData.append('title', postData.title);
+    formData.append('content', postData.content);
+    formData.append('image', postData.image);
     let requestOptions = {
       method,
-      headers: fetchHaders,
-      body: JSON.stringify(postData),
+      body: formData,
       redirect: 'follow'
     };
     fetch(url, requestOptions)
@@ -170,7 +176,12 @@ class Feed extends Component {
 
   deletePostHandler = postId => {
     this.setState({ postsLoading: true });
-    fetch('URL')
+    var requestOptions = {
+      method: 'DELETE',
+      redirect: 'follow'
+    };
+
+    fetch('http://localhost:8080/feed/post/' + postId, requestOptions)
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Deleting a post failed!');
