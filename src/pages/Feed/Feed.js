@@ -50,7 +50,14 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch('http://localhost:8080/feed/posts')
+    let headers = new Headers();
+    headers.append('Authorization', `Bearer ${this.props.token}`);
+
+    let requestOptions = {
+      headers,
+      redirect: 'follow'
+    };
+    fetch('http://localhost:8080/feed/posts?page=' + page, requestOptions)
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
@@ -63,7 +70,7 @@ class Feed extends Component {
             return {
               ...post,
               imagePath: post.imageUrl
-            }
+            };
           }),
           totalPosts: resData.totalItems,
           postsLoading: false
@@ -112,22 +119,28 @@ class Feed extends Component {
     });
     // Set up data (with image!)
     let url = 'http://localhost:8080/feed/post';
-    let method = 'POST'
+    let method = 'POST';
     if (this.state.editPost) {
       url = 'http://localhost:8080/feed/post/' + this.state.editPost._id;
-      method = 'PUT'
+      method = 'PUT';
     }
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
     formData.append('image', postData.image);
+    let headers = new Headers();
+    headers.append('Authorization', `Bearer ${this.props.token}`);
+
     let requestOptions = {
       method,
+      headers,
       body: formData,
       redirect: 'follow'
     };
+    // debugger;
     fetch(url, requestOptions)
       .then(res => {
+        // debugger;
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Creating or editing a post failed!');
         }
@@ -176,8 +189,12 @@ class Feed extends Component {
 
   deletePostHandler = postId => {
     this.setState({ postsLoading: true });
+    let headers = new Headers();
+    headers.append('Authorization', `Bearer ${this.props.token}`);
+
     var requestOptions = {
       method: 'DELETE',
+      headers,
       redirect: 'follow'
     };
 
